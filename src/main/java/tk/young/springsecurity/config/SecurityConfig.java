@@ -1,10 +1,12 @@
 package tk.young.springsecurity.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -17,7 +19,10 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -46,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .anyRequest().authenticated();
 
+        // Logout
         http
                 .logout()
                 .logoutUrl("/logout")
@@ -57,8 +63,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessHandler((request, response, authentication) -> {
                     response.sendRedirect("/login");
                 })
-                .deleteCookies("JSESSIONID");
-//                .deleteCookies("remember-me");
+                .deleteCookies("remember-me");
+
+        // Remember me
+        http
+                .rememberMe()
+                .rememberMeParameter("remember") // 기본 파라미터명은 remember-me
+                .tokenValiditySeconds(3600) // Default 14일
+                .alwaysRemember(true) // 리멤버 미 기능이 활성화되지 않아도 항상 실행
+                .userDetailsService(userDetailsService);
 
     }
 
