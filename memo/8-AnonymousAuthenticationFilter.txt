@@ -1,0 +1,23 @@
+
+1. 전체 흐름
+
+AnonymousAuthenticationFilter
+
+Authentication  if not exist
+
+AnonymousAuthenticationToken
+
+SecurityContextHoler set Anonymous Authentication
+(인증객체를 세션에 저장하지 않는다)
+
+
+
+SecurityInterceptor
+보안 마지막 필터로 인가 처리를 하는 필터
+anonymousAuthentication
+
+
+2. 사용 메소드
+
+isAnonymous() <> isAuthenticated()
+
