@@ -1,0 +1,10 @@
+
+1. 전체 흐름
+
+LogoutFilter
+
+AntPathRequestMatcher(/logout)
+
+Authentication -> SecurityContext
+
+SecurityContextLogoutHandler -> 세션 무효화, 쿠키 삭제, SecurityContextHolder.clearContext()
