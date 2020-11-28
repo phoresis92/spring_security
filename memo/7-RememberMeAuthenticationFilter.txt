@@ -1,0 +1,24 @@
+
+1. 전체 흐름
+
+RememberMeAuthenticationFilter : SecurityContext 에 Authentication 이 null 일때, remember-me 쿠키를 넘겼을때 동작
+
+RememberMeServices <- TokenBasedRememberMeServices, PersistentTokenBasedRememberMeServices
+
+Token Cookie 추출
+
+Token 이 존재 하는가
+
+Decode Token(정상 유무 판단)
+
+Token 이 서로 일치하는가
+
+User 계정이 존재하는가
+
+새로운 Authentication 생성
+
+인증처리
+
+AuthenticationManager
+
+...
