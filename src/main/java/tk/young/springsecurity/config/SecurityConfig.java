@@ -178,6 +178,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 }); // 인가실패 처리
 
+//        http
+//                .csrf() // 명시하지 않아도 기본 설정으로 되어있다.
+//                .disable();
+
     }
 
 }
