@@ -1,6 +1,7 @@
 package tk.young.springsecurity.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -9,10 +10,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
@@ -49,8 +54,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("passwd")
 //                .loginProcessingUrl("/login_proc")
                 .successHandler((request, response, authentication) -> {
-                    System.out.println("authentication.getName() = " + authentication.getName());
-                    response.sendRedirect("/");
+//                    System.out.println("authentication.getName() = " + authentication.getName());
+//                    response.sendRedirect("/");
+
+                    HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+                    SavedRequest savedRequest = requestCache.getRequest(request, response);
+
+                    String redirectUrl = savedRequest.getRedirectUrl();
+                    response.sendRedirect(redirectUrl);
+
                 })
                 .failureHandler((request, response, exception) -> {
                     exception.printStackTrace();
@@ -125,6 +137,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 주의사항 - 설정 시 구체적인 경로가 먼저 오고 그것 보다 큰 범위의 경로가 뒤에 오도록 해야 한다.
         http
                 .authorizeRequests()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/user").hasRole("USER")
                 .antMatchers("/admin/pay").hasRole("ADMIN")
                 .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
@@ -151,6 +164,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             hasAnyAuthority(String...)      사용자가 주어진 권한 중 어떤 것이라도 있다면 접근을 허용
             hasIpAddress(String)            주어진 IP로부터 요청이 왔다면 접근을 허용
         */
+
+        http
+                .exceptionHandling()
+//                .authenticationEntryPoint((request, response, authException) -> {
+//
+//                    response.sendRedirect("/login");
+//
+//                }) // 인증실패 처리
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+
+                    response.sendRedirect("/denied");
+
+                }); // 인가실패 처리
 
     }
 
